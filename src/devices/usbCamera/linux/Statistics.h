@@ -25,10 +25,10 @@
 // For FPS statistics purpouse
 class Statistics {
 public:
-  explicit Statistics(const std::string &info,double exposition) : info_(info),exposition_(exposition) {
+  explicit Statistics(const std::string &info) : info_(info) {
     timeStart_ = yarp::os::Time::now();
   };
-  void add() {
+  void add(double exposition) {
     ++frameCounter_;
     double timeNow = yarp::os::Time::now();
     double timeElapsed;
@@ -36,7 +36,7 @@ public:
       yCInfo(USBCAMERA) << info_ << " frame number:" << frameCounter_ << " fps:"
                         << (static_cast<double>(frameCounter_)) / statPeriod_
                         << " interval:" << timeElapsed << " sec."
-                        << " exposition:" << exposition_ << " msec.";
+                        << " exposition:" << exposition << " msec.";
 
       frameCounter_ = 0;
       timeStart_ = timeNow;
@@ -45,7 +45,6 @@ public:
 
 private:
   std::string info_;
-  double exposition_{0};
   double timeStart_{0};
   unsigned int frameCounter_{0};
   static constexpr double statPeriod_{5.0};

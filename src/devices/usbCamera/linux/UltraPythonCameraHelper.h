@@ -53,7 +53,7 @@ public:
   static constexpr int hiresFrameRate_{14};
   static constexpr unsigned int deadTime_{10};
   static constexpr unsigned int minPermittedExposition_{15};
-  static constexpr unsigned int maxPermittedExposition_{100};
+  static constexpr unsigned int maxPermittedExposition_{50};
 
   // V4l ctrl for UltraPython
   static constexpr unsigned int V4L2_EXPOSURE_ULTRA_PYTHON{0x0098cb03}; // trg_l
@@ -80,7 +80,7 @@ private:
   static constexpr const char *pipelineRxifName = "PYTHON1300_RXIF";
 
   // Buffers
-  static constexpr unsigned int requestBufferNumber_ = {8};
+  static constexpr unsigned int requestBufferNumber_ = {4};
   static constexpr unsigned int pipelineMaxLen = {16};
 
   // Native resolution for cam
@@ -161,8 +161,8 @@ private:
   bool forceFormatProperty_{true}; // Overwrite preesistent format
   double currentExposure_{0};// Only for logging purpouse
 
-  // Image memory map
-  MmapBuffer mMapBuffers_[requestBufferNumber_];
+  // Image memory map, it a buffer
+  MmapBuffer mapBuffers_[requestBufferNumber_];
 
   // File descriptors and indexes
   int mainSubdeviceFd_ = -1;

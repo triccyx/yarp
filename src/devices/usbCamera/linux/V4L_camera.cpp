@@ -713,7 +713,7 @@ bool V4L_camera::threadInit() {
 }
 
 void V4L_camera::run() {
-  static Statistics stat("frames read by DRIVER", 0);
+  static Statistics stat("frames read by DRIVER");
 
   if (param.camModel == ULTRAPYTON) {
     // This thread is not used by UltraPython, called directly getRgbBuffer()
@@ -722,7 +722,7 @@ void V4L_camera::run() {
   }
 
   if (full_FrameRead()) {
-    stat.add();
+    stat.add(-1);
   } else {
     yCError(USBCAMERA) << "Failed acquiring new frame";
   }
@@ -1070,10 +1070,9 @@ bool V4L_camera::getRgbBuffer(unsigned char *buffer) {
   mutex.wait();
 
   if (param.camModel == ULTRAPYTON) {
-    static Statistics stat("frames read by YARP",
-                           pythonCameraHelper_.getCurrentExposure());
+    static Statistics stat("frames read by YARP");
     if (pythonCameraHelper_.step(buffer)) {
-      stat.add();
+      stat.add(pythonCameraHelper_.getCurrentExposure());
     } else {
       yCError(USBCAMERA) << "Failed acquiring new frame";
     }
@@ -1087,7 +1086,7 @@ bool V4L_camera::getRgbBuffer(unsigned char *buffer) {
       memcpy(buffer, param.outMat.data, param.outMat.total() * 3);
     }
   }
-  
+
   mutex.post();
   return true;
 }

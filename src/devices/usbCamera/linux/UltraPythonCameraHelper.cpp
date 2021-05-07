@@ -491,13 +491,13 @@ bool UltraPythonCameraHelper::initMmap() {
       return false;
     }
 
-    mMapBuffers_[currentUsedBufferIndex].length = buf.length;
-    mMapBuffers_[currentUsedBufferIndex].start = interfaceCApi_->mmap_c(
+    mapBuffers_[currentUsedBufferIndex].length = buf.length;
+    mapBuffers_[currentUsedBufferIndex].start = interfaceCApi_->mmap_c(
         nullptr /* start anywhere */, buf.length,
         PROT_READ | PROT_WRITE /* required */, MAP_SHARED /* recommended */,
         mainSubdeviceFd_, buf.m.offset);
 
-    if (MAP_FAILED == mMapBuffers_[currentUsedBufferIndex].start) {
+    if (MAP_FAILED == mapBuffers_[currentUsedBufferIndex].start) {
       return false;
     }
   }
@@ -570,12 +570,12 @@ bool UltraPythonCameraHelper::step(unsigned char *yarpbuffer) {
 
 int UltraPythonCameraHelper::readFrame(unsigned char *yarpbuffer) {
   struct v4l2_buffer buf;
-  int seq = 1;
-  CLEAR(buf);
+  memset(&buf, 0, sizeof(buf));
 
   buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   buf.memory = V4L2_MEMORY_MMAP;
 
+  //Retrieve current buffer info (current index)
   if (interfaceCApi_->xioctl_v4l2(mainSubdeviceFd_, VIDIOC_DQBUF, &buf) == -1) {
     switch (errno) {
     case EAGAIN:
@@ -597,14 +597,13 @@ int UltraPythonCameraHelper::readFrame(unsigned char *yarpbuffer) {
     Log(*this, Severity::error) << "V4L2_BUF_FLAG_ERROR";
     return -1;
   }
+  int seq = buf.sequence;
 
-  seq = buf.sequence;
-
-  memcpy(yarpbuffer, mMapBuffers_[buf.index].start,
+  memcpy(yarpbuffer, mapBuffers_[buf.index].start,
          buf.bytesused); // Copy to out Yarp buffer
-  processImage(mMapBuffers_[buf.index].start, buf.bytesused); // Nothing to do
+  processImage(mapBuffers_[buf.index].start, buf.bytesused); // Nothing to do
   //**Debug for Kernel start
-  // memset(mMapBuffers_[buf.index].start, 255, buf.bytesused);
+  // memset(mapBuffers_[buf.index].start, 255, buf.bytesused);
   //**Debug end
   if (interfaceCApi_->xioctl(mainSubdeviceFd_, VIDIOC_QBUF, &buf) == -1) {
     Log(*this, Severity::error) << "VIDIOC_QBUF";
@@ -639,7 +638,7 @@ bool UltraPythonCameraHelper::unInitDevice() {
   unsigned int i;
 
   for (i = 0; i < requestBufferNumber_; ++i) {
-    if (-1 == munmap(mMapBuffers_[i].start, mMapBuffers_[i].length)) {
+    if (-1 == munmap(mapBuffers_[i].start, mapBuffers_[i].length)) {
       Log(*this, Severity::error) << "munmap";
       return false;
     }
