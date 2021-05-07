@@ -565,6 +565,7 @@ bool UltraPythonCameraHelper::step(unsigned char *yarpbuffer) {
     Log(*this, Severity::warning) << "dropped frame..";
     sequence = seq + 1;
   }
+  
   return true;
 }
 

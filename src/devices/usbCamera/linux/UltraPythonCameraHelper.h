@@ -80,7 +80,7 @@ private:
   static constexpr const char *pipelineRxifName = "PYTHON1300_RXIF";
 
   // Buffers
-  static constexpr unsigned int requestBufferNumber_ = {4};
+  static constexpr unsigned int requestBufferNumber_ = {2};
   static constexpr unsigned int pipelineMaxLen = {16};
 
   // Native resolution for cam
